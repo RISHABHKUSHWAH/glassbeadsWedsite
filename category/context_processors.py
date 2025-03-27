@@ -1,0 +1,5 @@
+# from django.shortcuts import render
+from .models import Category
+def menu_linksList(request):
+    links = Category.objects.all()
+    return dict(links= links)
