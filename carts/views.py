@@ -1,6 +1,11 @@
 from django.shortcuts import render,redirect,HttpResponse,get_object_or_404
 from store.models import Product
 from .models import Cart,CartItem
+from django.core.exceptions import ObjectDoesNotExist
+
+
+
+
 # Create your views here.
 def _cart_id(request):
     cart = request.session.session_key
@@ -50,7 +55,7 @@ def remove_cart_item(request,product_id):
     cart_item.delete()
     return redirect('cart')
   
-def cart(request,total=0, quantity=0,cart_items=None):
+def cart(request,total=0,tax=0,grant_total=0, quantity=0,cart_items=None):
     try:
         cart = Cart.objects.get(cart_id = _cart_id(request))
         cart_items = CartItem.objects.filter(cart=cart,is_active= True)
@@ -58,9 +63,9 @@ def cart(request,total=0, quantity=0,cart_items=None):
             total += (cart_item.product.price*cart_item.quantity)
             quantity += cart_item.quantity
         tax = (2*total)/100
-        grant_total = total+tax    
-    except objectNotExist:
-        pass #
+        grant_total = total+tax        
+    except ObjectDoesNotExist:
+        pass  # or handle the error properly
 
     context={
         'total' : total,

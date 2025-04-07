@@ -4,20 +4,28 @@ from category.models import Category
 from carts.models import CartItem
 from carts.views import _cart_id
 from django.http import HttpResponseGone
+from django.core.paginator import EmptyPage,PageNotAnInteger,Paginator
 # Create your views here.
 
 def store(request, category_slugs=None):
     categories = None
     products   = None
+
     if category_slugs !=None:
         categories = get_object_or_404(Category, slug=category_slugs)
         products = Product.objects.all().filter(category=categories,is_available=True)
+        paginator = Paginator(products,1)
+        page = request.GET.get('page')
+        paged_products = paginator.get_page(page)
         product_count = products.count()
     else:
         products = Product.objects.all().filter(is_available = True)
+        paginator = Paginator(products,1)
+        page = request.GET.get('page')
+        paged_products = paginator.get_page(page)
         product_count = products.count()
     context = {
-        'products' : products,
+        'products' : paged_products,
         'product_count' : product_count,
     }
     return render(request,'store/store.html',context)
